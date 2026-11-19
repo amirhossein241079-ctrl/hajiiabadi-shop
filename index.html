@@ -88,6 +88,20 @@ footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;ma
 </div>
 </div>
 
+
+<div class="panel" id="recoveryBox">
+  <h3 class="gold">بازیابی رمز عبور مدیر</h3>
+  <input id="recoveryEmail" type="email" placeholder="ایمیل مدیر">
+  <button onclick="sendRecovery()">ارسال لینک بازیابی</button>
+  <p id="recoveryMessage" class="status"></p>
+
+  <div id="newPasswordBox" class="hidden">
+    <h3 class="gold">تعیین رمز جدید</h3>
+    <input id="newPassword" type="password" placeholder="رمز جدید">
+    <button onclick="updatePassword()">ثبت رمز جدید</button>
+    <p id="passwordMessage" class="status"></p>
+  </div>
+</div>
 <footer>
 <strong class="gold">کافی نت و تعمیرات موبایل حاجی‌آبادی</strong>
 <br>
@@ -107,6 +121,56 @@ const ADMIN_UID="17356832-e67b-47a6-bd83-8ae90e81614d";
 
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
+db.auth.onAuthStateChange((event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    document.getElementById("newPasswordBox").classList.remove("hidden");
+    document.getElementById("recoveryMessage").textContent =
+      "لطفاً رمز جدید خود را وارد کنید.";
+  }
+});
+
+
+async function sendRecovery(){
+  const email=document.getElementById("recoveryEmail").value.trim();
+  const msg=document.getElementById("recoveryMessage");
+
+  if(!email){
+    msg.textContent="ایمیل را وارد کن.";
+    return;
+  }
+
+  msg.textContent="در حال ارسال ایمیل...";
+
+  const {error}=await db.auth.resetPasswordForEmail(email,{
+    redirectTo:window.location.origin+window.location.pathname
+  });
+
+  msg.textContent=error
+    ?"خطا: "+error.message
+    :"لینک بازیابی به ایمیلت ارسال شد. صندوق ورودی را بررسی کن.";
+}
+
+async function updatePassword(){
+  const password=document.getElementById("newPassword").value;
+  const msg=document.getElementById("passwordMessage");
+
+  if(password.length<8){
+    msg.textContent="رمز باید حداقل ۸ کاراکتر باشد.";
+    return;
+  }
+
+  msg.textContent="در حال ثبت رمز جدید...";
+
+  const {error}=await db.auth.updateUser({password});
+
+  if(error){
+    msg.textContent="خطا: "+error.message;
+    return;
+  }
+
+  msg.textContent="رمز جدید با موفقیت ثبت شد.";
+  document.getElementById("newPassword").value="";
+}
 const categories=[
 "همه","لوازم جانبی موبایل","تعمیرات موبایل","کافی نت",
 "لوازم التحریر","اکسسوری و اسباب بازی","گوشی موبایل",
