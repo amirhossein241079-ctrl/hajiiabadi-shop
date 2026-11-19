@@ -3,31 +3,32 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>منوی آنلاین حاجی‌آبادی</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>کافی نت و تعمیرات موبایل حاجی‌آبادی</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#101010;color:#fff;font-family:tahoma,Arial}
+body{margin:0;background:#101010;color:white;font-family:tahoma,Arial}
 header{text-align:center;padding:35px 15px;background:linear-gradient(135deg,#171717,#30240b);border-bottom:2px solid #c9a23f}
 .logo{font-size:45px}
-h1{color:#e5bd55;margin:12px 0;font-size:25px}
+h1{color:#e5bd55;font-size:25px}
 header p{color:#ddd;font-size:13px}
 .gold{color:#e5bd55}
 nav{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding:18px}
 button{cursor:pointer;border:1px solid #c9a23f;background:#211d12;color:#e5bd55;padding:11px 16px;border-radius:9px;font-family:inherit}
-button.active,button:hover{background:#c9a23f;color:#111}
+button:hover,button.active{background:#c9a23f;color:#111}
 .container{max-width:950px;margin:auto;padding:15px}
 input,select{background:#222;color:white;border:1px solid #80652a;border-radius:8px;padding:12px;font-family:inherit;width:100%;margin:6px 0}
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:20px}
 .card{background:#1c1c1c;border:1px solid #51401d;border-radius:12px;padding:18px}
-.card h3{color:#e5bd55;margin:0 0 12px}
+.card h3{color:#e5bd55;margin-top:0}
 .price{color:#e5bd55;font-size:19px;font-weight:bold}
 .desc{color:#bbb;font-size:13px;line-height:2}
 .panel{background:#1c1c1c;padding:20px;border:1px solid #c9a23f;border-radius:12px;margin:20px 0}
-.hidden{display:none}
-.actions{display:flex;gap:8px;margin-top:12px}
+.hidden{display:none!important}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;margin-top:40px;line-height:2}
-a{color:#e5bd55;text-decoration:none}
+.status{color:#e5bd55;font-size:13px;margin:12px 0}
 </style>
 </head>
 <body>
@@ -43,17 +44,32 @@ a{color:#e5bd55;text-decoration:none}
 
 <div class="container">
 <input id="search" placeholder="🔍 جستجوی محصول یا خدمات..." oninput="render()">
-
+<p id="status" class="status">در حال دریافت اطلاعات...</p>
 <div id="products" class="products"></div>
 
 <div class="panel">
 <h3 class="gold">مدیریت فروشگاه</h3>
-<button onclick="toggleAdmin()">ورود به مدیریت قیمت‌ها</button>
+<button id="loginToggle" onclick="showLogin()">ورود مدیر</button>
+
+<div id="loginBox" class="hidden">
+<p class="desc">ورود به حساب مدیریت مغازه</p>
+<input id="email" type="email" placeholder="ایمیل مدیر">
+<input id="password" type="password" placeholder="رمز عبور">
+<button onclick="login()">ورود به پنل مدیریت</button>
+<p id="loginMessage" class="status"></p>
+</div>
+
 <div id="admin" class="hidden">
-<p class="desc">افزودن یا ویرایش محصولات و خدمات</p>
+<p class="gold">پنل مدیریت حاجی‌آبادی</p>
+<p id="adminEmail" class="desc"></p>
+<button onclick="logout()">خروج از حساب</button>
+
+<hr style="border-color:#55431c;margin:20px 0">
+
+<h3 class="gold">افزودن یا ویرایش محصول</h3>
 <input id="name" placeholder="نام محصول یا خدمت">
-<input id="price" placeholder="قیمت (تومان)" type="number">
-<input id="desc" placeholder="توضیحات">
+<input id="price" type="number" min="0" placeholder="قیمت به تومان">
+<input id="description" placeholder="توضیحات">
 <select id="category">
 <option>لوازم جانبی موبایل</option>
 <option>تعمیرات موبایل</option>
@@ -63,9 +79,10 @@ a{color:#e5bd55;text-decoration:none}
 <option>گوشی موبایل</option>
 <option>تعمیرات کارت‌خوان</option>
 </select>
-<button onclick="addProduct()">ذخیره محصول</button>
-<button onclick="exportData()">پشتیبان‌گیری از قیمت‌ها</button>
-<input type="file" id="importFile" accept=".json" onchange="importData(event)">
+<button onclick="saveProduct()">ذخیره اطلاعات</button>
+<button onclick="clearForm()">لغو ویرایش</button>
+
+<h3 class="gold">فهرست محصولات برای مدیریت</h3>
 <div id="manage"></div>
 </div>
 </div>
@@ -76,7 +93,7 @@ a{color:#e5bd55;text-decoration:none}
 <br>
 تعمیرات موبایل | فروش لوازم جانبی | خدمات کافی نت
 <br>
-تعمیرات کارت‌خوان و اکسسوری
+تعمیرات کارت‌خوان | اکسسوری و اسباب بازی
 <br>
 تماس: ۰۹۹۱۰۳۲۷۸۸۳
 <br>
@@ -84,125 +101,190 @@ a{color:#e5bd55;text-decoration:none}
 </footer>
 
 <script>
-const defaults=[
-{name:"تعمیرات موبایل",price:0,desc:"تعمیر انواع گوشی موبایل",category:"تعمیرات موبایل"},
-{name:"خدمات چاپ و پرینت",price:0,desc:"چاپ و پرینت مدارک",category:"کافی نت"},
-{name:"کابل شارژ",price:0,desc:"انواع کابل شارژ",category:"لوازم جانبی موبایل"},
-{name:"لوازم التحریر",price:0,desc:"انواع نوشت‌افزار",category:"لوازم التحریر"},
-{name:"تعمیرات کارت‌خوان",price:0,desc:"عیب‌یابی و تعمیر کارت‌خوان",category:"تعمیرات کارت‌خوان"}
+const SUPABASE_URL="https://qitzmggrgigrsgsebknq.supabase.co";
+const SUPABASE_KEY="sb_publishable_l__ULc7d4vxErIiij0u4eQ_R7o7o5kL";
+const ADMIN_UID="17356832-e67b-47a6-bd83-8ae90e81614d";
+
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const categories=[
+"همه","لوازم جانبی موبایل","تعمیرات موبایل","کافی نت",
+"لوازم التحریر","اکسسوری و اسباب بازی","گوشی موبایل",
+"تعمیرات کارت‌خوان"
 ];
 
-let items=JSON.parse(localStorage.getItem("shopItems")||"null")||defaults;
+let items=[];
 let current="همه";
-let editing=-1;
+let editing=null;
+let isAdmin=false;
 
-const categories=["همه","لوازم جانبی موبایل","تعمیرات موبایل","کافی نت","لوازم التحریر","اکسسوری و اسباب بازی","گوشی موبایل","تعمیرات کارت‌خوان"];
-
-function save(){
-localStorage.setItem("shopItems",JSON.stringify(items));
-render();
+function safe(s){
+return String(s??"").replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
 }
 
 function render(){
-document.getElementById("categories").innerHTML=categories.map(c=>
-`<button class="${current===c?'active':''}" onclick="current='${c}';render()">${c}</button>`
-).join("");
+document.getElementById("categories").innerHTML=
+categories.map(c=>`<button class="${current===c?'active':''}" onclick="current='${safe(c)}';render()">${safe(c)}</button>`).join("");
 
 let q=document.getElementById("search").value.toLowerCase();
-let filtered=items.filter(x=>(current==="همه"||x.category===current)&&
-(x.name.toLowerCase().includes(q)||x.desc.toLowerCase().includes(q)));
+
+let filtered=items.filter(x=>
+(current==="همه"||x.category===current)&&
+(x.name.toLowerCase().includes(q)||
+String(x.description||"").toLowerCase().includes(q))
+);
 
 document.getElementById("products").innerHTML=filtered.length?
 filtered.map(x=>`
 <div class="card">
-<h3>${escapeHTML(x.name)}</h3>
-<p class="desc">${escapeHTML(x.desc)}</p>
+<h3>${safe(x.name)}</h3>
+<p class="desc">${safe(x.description)}</p>
 <div class="price">${Number(x.price)>0?Number(x.price).toLocaleString("fa-IR")+" تومان":"تماس بگیرید"}</div>
-</div>`).join(""):"<p>موردی پیدا نشد.</p>";
+</div>`).join(""):"<p>هنوز محصولی در این دسته ثبت نشده است.</p>";
 
 renderManage();
 }
 
-function escapeHTML(s){
-return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function loadProducts(){
+const {data,error}=await db.from("products")
+.select("*").order("created_at",{ascending:false});
+
+if(error){
+document.getElementById("status").textContent="خطا در دریافت اطلاعات: "+error.message;
+return;
+}
+items=data||[];
+document.getElementById("status").textContent="قیمت‌ها از پایگاه داده آنلاین دریافت می‌شوند.";
+render();
 }
 
-function toggleAdmin(){
-document.getElementById("admin").classList.toggle("hidden");
+function showLogin(){
+document.getElementById("loginBox").classList.toggle("hidden");
 }
 
-function addProduct(){
+async function login(){
+let email=document.getElementById("email").value.trim();
+let password=document.getElementById("password").value;
+let msg=document.getElementById("loginMessage");
+
+if(!email||!password){msg.textContent="ایمیل و رمز را وارد کن.";return;}
+
+msg.textContent="در حال ورود...";
+
+const {data,error}=await db.auth.signInWithPassword({email,password});
+
+if(error){msg.textContent="خطا: "+error.message;return;}
+
+if(data.user.id!==ADMIN_UID){
+await db.auth.signOut();
+msg.textContent="این حساب اجازه مدیریت ندارد.";
+return;
+}
+
+msg.textContent="ورود موفق!";
+setAdmin(data.user);
+}
+
+function setAdmin(user){
+isAdmin=!!user&&user.id===ADMIN_UID;
+document.getElementById("admin").classList.toggle("hidden",!isAdmin);
+document.getElementById("loginBox").classList.add("hidden");
+document.getElementById("loginToggle").classList.toggle("hidden",isAdmin);
+document.getElementById("adminEmail").textContent=user?.email||"";
+renderManage();
+}
+
+async function logout(){
+await db.auth.signOut();
+setAdmin(null);
+}
+
+function clearForm(){
+editing=null;
+["name","price","description"].forEach(id=>document.getElementById(id).value="");
+}
+
+async function saveProduct(){
+if(!isAdmin){alert("ابتدا وارد حساب مدیر شو.");return;}
+
 let name=document.getElementById("name").value.trim();
 let price=document.getElementById("price").value;
-let desc=document.getElementById("desc").value.trim();
+let description=document.getElementById("description").value.trim();
 let category=document.getElementById("category").value;
 
-if(!name){alert("نام محصول را وارد کن");return;}
+if(!name){alert("نام محصول را وارد کن.");return;}
+if(price!==""&&Number(price)<0){alert("قیمت معتبر نیست.");return;}
 
-let product={name,price:Number(price)||0,desc,category};
+let product={
+name,
+price:Number(price)||0,
+description,
+category
+};
 
-if(editing>=0){items[editing]=product;editing=-1;}
-else{items.push(product);}
+let result;
 
-document.getElementById("name").value="";
-document.getElementById("price").value="";
-document.getElementById("desc").value="";
-save();
+if(editing){
+result=await db.from("products").update(product).eq("id",editing);
+}else{
+result=await db.from("products").insert(product);
+}
+
+if(result.error){
+alert("خطا در ذخیره: "+result.error.message);
+return;
+}
+
+clearForm();
+await loadProducts();
+alert("اطلاعات با موفقیت ذخیره شد.");
 }
 
 function renderManage(){
-let box=document.getElementById("manage");
-if(!box)return;
-box.innerHTML=items.map((x,i)=>`
+if(!isAdmin)return;
+
+document.getElementById("manage").innerHTML=items.map(x=>`
 <div class="card" style="margin-top:10px">
-<strong>${escapeHTML(x.name)}</strong>
+<strong>${safe(x.name)}</strong>
 <p class="desc">${Number(x.price).toLocaleString("fa-IR")} تومان</p>
 <div class="actions">
-<button onclick="editProduct(${i})">ویرایش</button>
-<button onclick="deleteProduct(${i})">حذف</button>
+<button onclick="editProduct(${x.id})">ویرایش</button>
+<button onclick="deleteProduct(${x.id})">حذف</button>
 </div>
 </div>`).join("");
 }
 
-function editProduct(i){
-let x=items[i];editing=i;
+function editProduct(id){
+let x=items.find(p=>p.id===id);
+if(!x)return;
+editing=id;
 document.getElementById("name").value=x.name;
 document.getElementById("price").value=x.price;
-document.getElementById("desc").value=x.desc;
+document.getElementById("description").value=x.description||"";
 document.getElementById("category").value=x.category;
-window.scrollTo(0,0);
+window.scrollTo(0,document.body.scrollHeight);
 }
 
-function deleteProduct(i){
-if(confirm("این محصول حذف شود؟")){
-items.splice(i,1);save();
-}
-}
-
-function exportData(){
-let file=new Blob([JSON.stringify(items,null,2)],{type:"application/json"});
-let a=document.createElement("a");
-a.href=URL.createObjectURL(file);
-a.download="hajiiabadi-prices.json";
-a.click();
-URL.revokeObjectURL(a.href);
+async function deleteProduct(id){
+if(!isAdmin||!confirm("این محصول حذف شود؟"))return;
+const {error}=await db.from("products").delete().eq("id",id);
+if(error){alert("خطا: "+error.message);return;}
+await loadProducts();
 }
 
-function importData(e){
-let file=e.target.files[0];
-if(!file)return;
-let reader=new FileReader();
-reader.onload=()=>{
-try{
-let data=JSON.parse(reader.result);
-if(!Array.isArray(data))throw Error();
-items=data;save();alert("اطلاعات بازیابی شد");
-}catch(err){alert("فایل معتبر نیست");}
-};
-reader.readAsText(file);
+db.auth.onAuthStateChange((event,session)=>{
+setAdmin(session?.user||null);
+});
+
+async function start(){
+const {data}=await db.auth.getSession();
+setAdmin(data.session?.user||null);
+await loadProducts();
 }
 
-render();
+start();
 </script>
 </body>
 </html>
