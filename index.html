@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منوی آنلاین حاجی‌آبادی</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:#fff;font-family:tahoma,Arial}
+header{text-align:center;padding:35px 15px;background:linear-gradient(135deg,#171717,#30240b);border-bottom:2px solid #c9a23f}
+.logo{font-size:45px}
+h1{color:#e5bd55;margin:12px 0;font-size:25px}
+header p{color:#ddd;font-size:13px}
+.gold{color:#e5bd55}
+nav{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding:18px}
+button{cursor:pointer;border:1px solid #c9a23f;background:#211d12;color:#e5bd55;padding:11px 16px;border-radius:9px;font-family:inherit}
+button.active,button:hover{background:#c9a23f;color:#111}
+.container{max-width:950px;margin:auto;padding:15px}
+input,select{background:#222;color:white;border:1px solid #80652a;border-radius:8px;padding:12px;font-family:inherit;width:100%;margin:6px 0}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:20px}
+.card{background:#1c1c1c;border:1px solid #51401d;border-radius:12px;padding:18px}
+.card h3{color:#e5bd55;margin:0 0 12px}
+.price{color:#e5bd55;font-size:19px;font-weight:bold}
+.desc{color:#bbb;font-size:13px;line-height:2}
+.panel{background:#1c1c1c;padding:20px;border:1px solid #c9a23f;border-radius:12px;margin:20px 0}
+.hidden{display:none}
+.actions{display:flex;gap:8px;margin-top:12px}
+footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;margin-top:40px;line-height:2}
+a{color:#e5bd55;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">👑</div>
+<h1>کافی نت و تعمیرات موبایل حاجی‌آبادی</h1>
+<p>منوی آنلاین محصولات، خدمات و قیمت‌ها</p>
+<p class="gold">کیفیت، اعتماد، خدمات حرفه‌ای</p>
+</header>
+
+<nav id="categories"></nav>
+
+<div class="container">
+<input id="search" placeholder="🔍 جستجوی محصول یا خدمات..." oninput="render()">
+
+<div id="products" class="products"></div>
+
+<div class="panel">
+<h3 class="gold">مدیریت فروشگاه</h3>
+<button onclick="toggleAdmin()">ورود به مدیریت قیمت‌ها</button>
+<div id="admin" class="hidden">
+<p class="desc">افزودن یا ویرایش محصولات و خدمات</p>
+<input id="name" placeholder="نام محصول یا خدمت">
+<input id="price" placeholder="قیمت (تومان)" type="number">
+<input id="desc" placeholder="توضیحات">
+<select id="category">
+<option>لوازم جانبی موبایل</option>
+<option>تعمیرات موبایل</option>
+<option>کافی نت</option>
+<option>لوازم التحریر</option>
+<option>اکسسوری و اسباب بازی</option>
+<option>گوشی موبایل</option>
+<option>تعمیرات کارت‌خوان</option>
+</select>
+<button onclick="addProduct()">ذخیره محصول</button>
+<button onclick="exportData()">پشتیبان‌گیری از قیمت‌ها</button>
+<input type="file" id="importFile" accept=".json" onchange="importData(event)">
+<div id="manage"></div>
+</div>
+</div>
+</div>
+
+<footer>
+<strong class="gold">کافی نت و تعمیرات موبایل حاجی‌آبادی</strong>
+<br>
+تعمیرات موبایل | فروش لوازم جانبی | خدمات کافی نت
+<br>
+تعمیرات کارت‌خوان و اکسسوری
+<br>
+تماس: ۰۹۹۱۰۳۲۷۸۸۳
+<br>
+۰۹۳۳۳۸۱۵۲۵۴
+</footer>
+
+<script>
+const defaults=[
+{name:"تعمیرات موبایل",price:0,desc:"تعمیر انواع گوشی موبایل",category:"تعمیرات موبایل"},
+{name:"خدمات چاپ و پرینت",price:0,desc:"چاپ و پرینت مدارک",category:"کافی نت"},
+{name:"کابل شارژ",price:0,desc:"انواع کابل شارژ",category:"لوازم جانبی موبایل"},
+{name:"لوازم التحریر",price:0,desc:"انواع نوشت‌افزار",category:"لوازم التحریر"},
+{name:"تعمیرات کارت‌خوان",price:0,desc:"عیب‌یابی و تعمیر کارت‌خوان",category:"تعمیرات کارت‌خوان"}
+];
+
+let items=JSON.parse(localStorage.getItem("shopItems")||"null")||defaults;
+let current="همه";
+let editing=-1;
+
+const categories=["همه","لوازم جانبی موبایل","تعمیرات موبایل","کافی نت","لوازم التحریر","اکسسوری و اسباب بازی","گوشی موبایل","تعمیرات کارت‌خوان"];
+
+function save(){
+localStorage.setItem("shopItems",JSON.stringify(items));
+render();
+}
+
+function render(){
+document.getElementById("categories").innerHTML=categories.map(c=>
+`<button class="${current===c?'active':''}" onclick="current='${c}';render()">${c}</button>`
+).join("");
+
+let q=document.getElementById("search").value.toLowerCase();
+let filtered=items.filter(x=>(current==="همه"||x.category===current)&&
+(x.name.toLowerCase().includes(q)||x.desc.toLowerCase().includes(q)));
+
+document.getElementById("products").innerHTML=filtered.length?
+filtered.map(x=>`
+<div class="card">
+<h3>${escapeHTML(x.name)}</h3>
+<p class="desc">${escapeHTML(x.desc)}</p>
+<div class="price">${Number(x.price)>0?Number(x.price).toLocaleString("fa-IR")+" تومان":"تماس بگیرید"}</div>
+</div>`).join(""):"<p>موردی پیدا نشد.</p>";
+
+renderManage();
+}
+
+function escapeHTML(s){
+return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function toggleAdmin(){
+document.getElementById("admin").classList.toggle("hidden");
+}
+
+function addProduct(){
+let name=document.getElementById("name").value.trim();
+let price=document.getElementById("price").value;
+let desc=document.getElementById("desc").value.trim();
+let category=document.getElementById("category").value;
+
+if(!name){alert("نام محصول را وارد کن");return;}
+
+let product={name,price:Number(price)||0,desc,category};
+
+if(editing>=0){items[editing]=product;editing=-1;}
+else{items.push(product);}
+
+document.getElementById("name").value="";
+document.getElementById("price").value="";
+document.getElementById("desc").value="";
+save();
+}
+
+function renderManage(){
+let box=document.getElementById("manage");
+if(!box)return;
+box.innerHTML=items.map((x,i)=>`
+<div class="card" style="margin-top:10px">
+<strong>${escapeHTML(x.name)}</strong>
+<p class="desc">${Number(x.price).toLocaleString("fa-IR")} تومان</p>
+<div class="actions">
+<button onclick="editProduct(${i})">ویرایش</button>
+<button onclick="deleteProduct(${i})">حذف</button>
+</div>
+</div>`).join("");
+}
+
+function editProduct(i){
+let x=items[i];editing=i;
+document.getElementById("name").value=x.name;
+document.getElementById("price").value=x.price;
+document.getElementById("desc").value=x.desc;
+document.getElementById("category").value=x.category;
+window.scrollTo(0,0);
+}
+
+function deleteProduct(i){
+if(confirm("این محصول حذف شود؟")){
+items.splice(i,1);save();
+}
+}
+
+function exportData(){
+let file=new Blob([JSON.stringify(items,null,2)],{type:"application/json"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(file);
+a.download="hajiiabadi-prices.json";
+a.click();
+URL.revokeObjectURL(a.href);
+}
+
+function importData(e){
+let file=e.target.files[0];
+if(!file)return;
+let reader=new FileReader();
+reader.onload=()=>{
+try{
+let data=JSON.parse(reader.result);
+if(!Array.isArray(data))throw Error();
+items=data;save();alert("اطلاعات بازیابی شد");
+}catch(err){alert("فایل معتبر نیست");}
+};
+reader.readAsText(file);
+}
+
+render();
+</script>
+</body>
+</html>
