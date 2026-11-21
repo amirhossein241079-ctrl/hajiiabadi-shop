@@ -23,12 +23,6 @@ input,select{background:#222;color:white;border:1px solid #80652a;border-radius:
 .card{background:#1c1c1c;border:1px solid #51401d;border-radius:12px;padding:18px}
 .card h3{color:#e5bd55;margin-top:0}
 .product-image{width:100%;height:170px;object-fit:cover;border-radius:9px;margin-bottom:12px;background:#292929}
-.whatsapp-order{display:block;text-align:center;text-decoration:none;background:#176b3a;color:#fff;padding:11px 14px;border-radius:9px;margin-top:13px;font-family:inherit;font-weight:bold}
-.whatsapp-order:hover{background:#1d8549}
-.stock-badge{display:inline-block;padding:6px 10px;border-radius:7px;font-size:12px;font-weight:bold;margin:8px 0}
-.stock-available{background:#163d28;color:#7be0a0;border:1px solid #287a49}
-.stock-unavailable{background:#482020;color:#ffaaaa;border:1px solid #914444}
-.stock-soon{background:#493b17;color:#ffdc78;border:1px solid #92752d}
 .preview-image{display:none;width:150px;height:120px;object-fit:cover;border-radius:9px;margin:8px 0;border:1px solid #c9a23f}
 .price{color:#e5bd55;font-size:19px;font-weight:bold}
 .desc{color:#bbb;font-size:13px;line-height:2}
@@ -53,12 +47,7 @@ footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;ma
 <div class="container">
 <input id="search" placeholder="🔍 جستجوی محصول یا خدمات..." oninput="render()">
 <p id="status" class="status">در حال دریافت اطلاعات...</p>
-<div id="products" class="products"></div><div class="panel" id="cartSection">
-  <h3 class="gold">🛒 سبد خرید من</h3>
-  <div id="cartItems">سبد خرید شما خالی است.</div>
-  <p id="cartTotal" class="gold">مبلغ کل: ۰ تومان</p>
-  <button onclick="checkout()">ثبت سفارش</button>
-</div>
+<div id="products" class="products"></div>
 
 <div class="panel">
 <h3 class="gold">مدیریت فروشگاه</h3>
@@ -87,12 +76,6 @@ footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;ma
 <p class="desc">عکس محصول (JPG، PNG یا WebP ـ حداکثر ۵ مگابایت)</p>
 <img id="imagePreview" class="preview-image" alt="پیش‌نمایش عکس">
 <p id="imageMessage" class="status"></p>
-<label for="stockStatus" class="desc">وضعیت موجودی محصول</label>
-<select id="stockStatus">
-<option value="موجود">موجود</option>
-<option value="ناموجود">ناموجود</option>
-<option value="به‌زودی">به‌زودی</option>
-</select>
 <select id="category">
 <option>لوازم جانبی موبایل</option>
 <option>تعمیرات موبایل</option>
@@ -200,7 +183,7 @@ const categories=[
 "تعمیرات کارت‌خوان"
 ];
 
-function render(){
+let items=[];
 let current="همه";
 let editing=null;
 let isAdmin=false;
@@ -209,21 +192,6 @@ function safe(s){
 return String(s??"").replace(/[&<>"']/g,c=>({
 "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
 }[c]));
-}
-
-function stockClass(status){
-if(status==="ناموجود") return "stock-unavailable";
-if(status==="به‌زودی") return "stock-soon";
-return "stock-available";
-}
-
-function whatsappUrl(product){
-const phone="9899103278883";
-const price=Number(product.price)>0
-? Number(product.price).toLocaleString("fa-IR")+" تومان"
-: "برای استعلام قیمت";
-const message=`سلام، برای محصول «${product.name}» با قیمت ${price} سفارش دارم. لطفاً راهنمایی کنید.`;
-return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 
 function render(){
@@ -245,8 +213,6 @@ ${x.image_url?`<img class="product-image" src="${safe(x.image_url)}" alt="${safe
 <h3>${safe(x.name)}</h3>
 <p class="desc">${safe(x.description)}</p>
 <div class="price">${Number(x.price)>0?Number(x.price).toLocaleString("fa-IR")+" تومان":"تماس بگیرید"}</div>
-<span class="stock-badge ${stockClass(x.stock_status||"موجود")}">${safe(x.stock_status||"موجود")}</span>
-${(x.stock_status||"موجود")==="موجود"?`<a class="whatsapp-order" href="${whatsappUrl(x)}" target="_blank" rel="noopener noreferrer">سفارش از طریق واتساپ</a><a class="whatsapp-order" href="https://rubika.ir/kafinethajiabadi" target="_blank" rel="noopener noreferrer">سفارش از طریق روبیکا</a><button onclick="addToCart('${x.id}')">🛒 افزودن به سبد خرید</button>`:""}
 </div>`).join(""):"<p>هنوز محصولی در این دسته ثبت نشده است.</p>";
 
 renderManage();
@@ -313,7 +279,6 @@ document.getElementById("imageFile").value="";
 document.getElementById("imagePreview").src="";
 document.getElementById("imagePreview").style.display="none";
 document.getElementById("imageMessage").textContent="";
- document.getElementById("stockStatus").value="موجود";
 }
 
 function previewImage(){
@@ -353,7 +318,6 @@ let name=document.getElementById("name").value.trim();
 let price=document.getElementById("price").value;
 let description=document.getElementById("description").value.trim();
 let category=document.getElementById("category").value;
-let stockStatus=document.getElementById("stockStatus").value;
 let imageFile=document.getElementById("imageFile").files[0];
 
 if(!name){alert("نام محصول را وارد کن.");return;}
@@ -401,7 +365,6 @@ let product={
   price:Number(price)||0,
   description,
   category,
-  stock_status:stockStatus,
   image_url:imageUrl
 };
 
@@ -430,7 +393,6 @@ document.getElementById("manage").innerHTML=items.map(x=>`
 ${x.image_url?`<img class="product-image" style="max-width:180px;height:110px" src="${safe(x.image_url)}" alt="${safe(x.name)}">`:""}
 <strong>${safe(x.name)}</strong>
 <p class="desc">${Number(x.price).toLocaleString("fa-IR")} تومان</p>
-<span class="stock-badge ${stockClass(x.stock_status||"موجود")}">${safe(x.stock_status||"موجود")}</span>
 <div class="actions">
 <button onclick="editProduct(${x.id})">ویرایش</button>
 <button onclick="deleteProduct(${x.id})">حذف</button>
@@ -446,7 +408,6 @@ document.getElementById("name").value=x.name;
 document.getElementById("price").value=x.price;
 document.getElementById("description").value=x.description||"";
 document.getElementById("category").value=x.category;
-document.getElementById("stockStatus").value=x.stock_status||"موجود";
 document.getElementById("imageFile").value="";
 const preview=document.getElementById("imagePreview");
 preview.src=x.image_url||"";
