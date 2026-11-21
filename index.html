@@ -50,8 +50,9 @@ footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;ma
 <div id="cartItems" class="desc">سبد خرید خالی است.</div>
 <p class="price" id="cartTotal">مجموع: ۰ تومان</p>
 <button onclick="checkout()">ثبت سفارش در واتساپ</button>
+<button onclick="checkoutRubika()">ثبت سفارش در روبیکا</button>
 <button onclick="clearCart()">خالی کردن سبد</button>
-<p class="desc">پس از ثبت سفارش، جزئیات سفارش در واتساپ برای فروشگاه آماده می‌شود.</p>
+<p class="desc">برای روبیکا، متن سفارش کپی می‌شود؛ سپس صفحه روبیکای فروشگاه باز می‌شود تا متن را در گفت‌وگو بچسبانی و ارسال کنی.</p>
 </div>
 
 <div class="panel">
@@ -143,6 +144,27 @@ function checkout(){
  cart.forEach((x,i)=>{message+=(i+1)+") "+encodeURIComponent(x.name)+" - تعداد: "+x.qty+" - "+encodeURIComponent(toman(x.price*x.qty))+"%0A";});
  message+="%0Aمجموع سفارش: "+encodeURIComponent(toman(total));
  window.open("https://wa.me/"+WHATSAPP_NUMBER+"?text="+message,"_blank");
+}
+function checkoutRubika(){
+ if(!cart.length){alert("سبد خرید خالی است.");return;}
+ const customer=prompt("نام و نام خانوادگی مشتری را وارد کنید:");
+ if(!customer||!customer.trim())return;
+ const phone=prompt("شماره تماس مشتری را وارد کنید:");
+ if(!phone||!phone.trim())return;
+ const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
+ let message="سلام، برای ثبت سفارش از منوی آنلاین حاجی‌آبادی پیام می‌دهم.\n";
+ message+="نام مشتری: "+customer.trim()+"\nشماره تماس: "+phone.trim()+"\n\n";
+ cart.forEach((x,i)=>{message+=(i+1)+") "+x.name+" - تعداد: "+x.qty+" - "+toman(x.price*x.qty)+"\n";});
+ message+="\nمجموع سفارش: "+toman(total);
+ window.open("https://rubika.ir/kafinethajiabadi","_blank");
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(message).then(
+   ()=>alert("متن سفارش کپی شد. در روبیکا وارد گفت‌وگوی فروشگاه شو و متن را بچسبان و ارسال کن."),
+   ()=>prompt("متن سفارش را کپی کن و در گفت‌وگوی روبیکا بفرست:",message)
+  );
+ }else{
+  prompt("متن سفارش را کپی کن و در گفت‌وگوی روبیکا بفرست:",message);
+ }
 }
 function render(){
  document.getElementById("categories").innerHTML=categories.map(c=>`<button class="${current===c?'active':''}" onclick="current='${safe(c)}';render()">${safe(c)}</button>`).join("");
