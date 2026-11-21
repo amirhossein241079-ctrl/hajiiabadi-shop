@@ -200,7 +200,7 @@ const categories=[
 "تعمیرات کارت‌خوان"
 ];
 
-let items=[];
+function render(){
 let current="همه";
 let editing=null;
 let isAdmin=false;
@@ -246,7 +246,7 @@ ${x.image_url?`<img class="product-image" src="${safe(x.image_url)}" alt="${safe
 <p class="desc">${safe(x.description)}</p>
 <div class="price">${Number(x.price)>0?Number(x.price).toLocaleString("fa-IR")+" تومان":"تماس بگیرید"}</div>
 <span class="stock-badge ${stockClass(x.stock_status||"موجود")}">${safe(x.stock_status||"موجود")}</span>
-${(x.stock_status||"موجود")==="موجود"?`<a class="whatsapp-order" href="${whatsappUrl(x)}" target="_blank" rel="noopener noreferrer">سفارش از طریق واتساپ</a><a class="whatsapp-order" href="https://rubika.ir/kafinethajiabadi" target="_blank" rel="noopener noreferrer">سفارش از طریق روبیکا</a>`:""}
+${(x.stock_status||"موجود")==="موجود"?`<a class="whatsapp-order" href="${whatsappUrl(x)}" target="_blank" rel="noopener noreferrer">سفارش از طریق واتساپ</a><a class="whatsapp-order" href="https://rubika.ir/kafinethajiabadi" target="_blank" rel="noopener noreferrer">سفارش از طریق روبیکا</a><button onclick="addToCart('${x.id}')">🛒 افزودن به سبد خرید</button>`:""}
 </div>`).join(""):"<p>هنوز محصولی در این دسته ثبت نشده است.</p>";
 
 renderManage();
