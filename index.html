@@ -53,7 +53,12 @@ footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;ma
 <div class="container">
 <input id="search" placeholder="🔍 جستجوی محصول یا خدمات..." oninput="render()">
 <p id="status" class="status">در حال دریافت اطلاعات...</p>
-<div id="products" class="products"></div>
+<div id="products" class="products"></div><div class="panel" id="cartSection">
+  <h3 class="gold">🛒 سبد خرید من</h3>
+  <div id="cartItems">سبد خرید شما خالی است.</div>
+  <p id="cartTotal" class="gold">مبلغ کل: ۰ تومان</p>
+  <button onclick="checkout()">ثبت سفارش</button>
+</div>
 
 <div class="panel">
 <h3 class="gold">مدیریت فروشگاه</h3>
