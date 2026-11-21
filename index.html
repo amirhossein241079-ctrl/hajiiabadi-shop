@@ -23,6 +23,8 @@ input,select{background:#222;color:white;border:1px solid #80652a;border-radius:
 .card{background:#1c1c1c;border:1px solid #51401d;border-radius:12px;padding:18px}
 .card h3{color:#e5bd55;margin-top:0}
 .product-image{width:100%;height:170px;object-fit:cover;border-radius:9px;margin-bottom:12px;background:#292929}
+.whatsapp-order{display:block;text-align:center;text-decoration:none;background:#176b3a;color:#fff;padding:11px 14px;border-radius:9px;margin-top:13px;font-family:inherit;font-weight:bold}
+.whatsapp-order:hover{background:#1d8549}
 .preview-image{display:none;width:150px;height:120px;object-fit:cover;border-radius:9px;margin:8px 0;border:1px solid #c9a23f}
 .price{color:#e5bd55;font-size:19px;font-weight:bold}
 .desc{color:#bbb;font-size:13px;line-height:2}
@@ -194,6 +196,15 @@ return String(s??"").replace(/[&<>"']/g,c=>({
 }[c]));
 }
 
+function whatsappUrl(product){
+const phone="9899103278883";
+const price=Number(product.price)>0
+? Number(product.price).toLocaleString("fa-IR")+" تومان"
+: "برای استعلام قیمت";
+const message=`سلام، برای محصول «${product.name}» با قیمت ${price} سفارش دارم. لطفاً راهنمایی کنید.`;
+return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
 function render(){
 document.getElementById("categories").innerHTML=
 categories.map(c=>`<button class="${current===c?'active':''}" onclick="current='${safe(c)}';render()">${safe(c)}</button>`).join("");
@@ -213,6 +224,7 @@ ${x.image_url?`<img class="product-image" src="${safe(x.image_url)}" alt="${safe
 <h3>${safe(x.name)}</h3>
 <p class="desc">${safe(x.description)}</p>
 <div class="price">${Number(x.price)>0?Number(x.price).toLocaleString("fa-IR")+" تومان":"تماس بگیرید"}</div>
+<a class="whatsapp-order" href="${whatsappUrl(x)}" target="_blank" rel="noopener noreferrer">سفارش از طریق واتساپ</a>
 </div>`).join(""):"<p>هنوز محصولی در این دسته ثبت نشده است.</p>";
 
 renderManage();
