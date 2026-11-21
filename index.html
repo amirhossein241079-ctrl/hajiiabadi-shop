@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -10,10 +9,8 @@
 *{box-sizing:border-box}
 body{margin:0;background:#101010;color:white;font-family:tahoma,Arial}
 header{text-align:center;padding:35px 15px;background:linear-gradient(135deg,#171717,#30240b);border-bottom:2px solid #c9a23f}
-.logo{font-size:45px}
-h1{color:#e5bd55;font-size:25px}
-header p{color:#ddd;font-size:13px}
-.gold{color:#e5bd55}
+.logo{font-size:45px} h1{color:#e5bd55;font-size:25px}
+header p{color:#ddd;font-size:13px}.gold{color:#e5bd55}
 nav{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding:18px}
 button{cursor:pointer;border:1px solid #c9a23f;background:#211d12;color:#e5bd55;padding:11px 16px;border-radius:9px;font-family:inherit}
 button:hover,button.active{background:#c9a23f;color:#111}
@@ -27,32 +24,39 @@ input,select{background:#222;color:white;border:1px solid #80652a;border-radius:
 .price{color:#e5bd55;font-size:19px;font-weight:bold}
 .desc{color:#bbb;font-size:13px;line-height:2}
 .panel{background:#1c1c1c;padding:20px;border:1px solid #c9a23f;border-radius:12px;margin:20px 0}
-.hidden{display:none!important}
-.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.hidden{display:none!important}.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;margin-top:40px;line-height:2}
 .status{color:#e5bd55;font-size:13px;margin:12px 0}
+.cart-line{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #51401d;padding:12px 0}
+.cart-line button{padding:6px 10px}.cart-count{display:inline-block;background:#c9a23f;color:#111;border-radius:20px;padding:2px 8px;margin-right:5px;font-weight:bold}
 </style>
 </head>
 <body>
-
 <header>
 <div class="logo">👑</div>
 <h1>کافی نت و تعمیرات موبایل حاجی‌آبادی</h1>
 <p>منوی آنلاین محصولات، خدمات و قیمت‌ها</p>
 <p class="gold">کیفیت، اعتماد، خدمات حرفه‌ای</p>
+<button onclick="document.getElementById('cartPanel').scrollIntoView({behavior:'smooth'})">🛒 سبد خرید <span id="cartCount" class="cart-count">۰</span></button>
 </header>
-
 <nav id="categories"></nav>
-
 <div class="container">
 <input id="search" placeholder="🔍 جستجوی محصول یا خدمات..." oninput="render()">
 <p id="status" class="status">در حال دریافت اطلاعات...</p>
 <div id="products" class="products"></div>
 
+<div class="panel" id="cartPanel">
+<h3 class="gold">🛒 سبد خرید و ثبت سفارش</h3>
+<div id="cartItems" class="desc">سبد خرید خالی است.</div>
+<p class="price" id="cartTotal">مجموع: ۰ تومان</p>
+<button onclick="checkout()">ثبت سفارش در واتساپ</button>
+<button onclick="clearCart()">خالی کردن سبد</button>
+<p class="desc">پس از ثبت سفارش، جزئیات سفارش در واتساپ برای فروشگاه آماده می‌شود.</p>
+</div>
+
 <div class="panel">
 <h3 class="gold">مدیریت فروشگاه</h3>
 <button id="loginToggle" onclick="showLogin()">ورود مدیر</button>
-
 <div id="loginBox" class="hidden">
 <p class="desc">ورود به حساب مدیریت مغازه</p>
 <input id="email" type="email" placeholder="ایمیل مدیر">
@@ -60,14 +64,10 @@ footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;ma
 <button onclick="login()">ورود به پنل مدیریت</button>
 <p id="loginMessage" class="status"></p>
 </div>
-
 <div id="admin" class="hidden">
-<p class="gold">پنل مدیریت حاجی‌آبادی</p>
-<p id="adminEmail" class="desc"></p>
+<p class="gold">پنل مدیریت حاجی‌آبادی</p><p id="adminEmail" class="desc"></p>
 <button onclick="logout()">خروج از حساب</button>
-
 <hr style="border-color:#55431c;margin:20px 0">
-
 <h3 class="gold">افزودن یا ویرایش محصول</h3>
 <input id="name" placeholder="نام محصول یا خدمت">
 <input id="price" type="number" min="0" placeholder="قیمت به تومان">
@@ -77,362 +77,172 @@ footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #55431c;ma
 <img id="imagePreview" class="preview-image" alt="پیش‌نمایش عکس">
 <p id="imageMessage" class="status"></p>
 <select id="category">
-<option>لوازم جانبی موبایل</option>
-<option>تعمیرات موبایل</option>
-<option>کافی نت</option>
-<option>لوازم التحریر</option>
-<option>اکسسوری و اسباب بازی</option>
-<option>گوشی موبایل</option>
-<option>تعمیرات کارت‌خوان</option>
+<option>لوازم جانبی موبایل</option><option>تعمیرات موبایل</option><option>کافی نت</option>
+<option>لوازم التحریر</option><option>اکسسوری و اسباب بازی</option><option>گوشی موبایل</option><option>تعمیرات کارت‌خوان</option>
 </select>
-<button onclick="saveProduct()">ذخیره اطلاعات</button>
-<button onclick="clearForm()">لغو ویرایش</button>
-
-<h3 class="gold">فهرست محصولات برای مدیریت</h3>
-<div id="manage"></div>
+<button onclick="saveProduct()">ذخیره اطلاعات</button><button onclick="clearForm()">لغو ویرایش</button>
+<h3 class="gold">فهرست محصولات برای مدیریت</h3><div id="manage"></div>
 </div>
 </div>
 </div>
-
-
 <div class="panel" id="recoveryBox">
-  <h3 class="gold">بازیابی رمز عبور مدیر</h3>
-  <input id="recoveryEmail" type="email" placeholder="ایمیل مدیر">
-  <button onclick="sendRecovery()">ارسال لینک بازیابی</button>
-  <p id="recoveryMessage" class="status"></p>
-
-  <div id="newPasswordBox" class="hidden">
-    <h3 class="gold">تعیین رمز جدید</h3>
-    <input id="newPassword" type="password" placeholder="رمز جدید">
-    <button onclick="updatePassword()">ثبت رمز جدید</button>
-    <p id="passwordMessage" class="status"></p>
-  </div>
+<h3 class="gold">بازیابی رمز عبور مدیر</h3>
+<input id="recoveryEmail" type="email" placeholder="ایمیل مدیر">
+<button onclick="sendRecovery()">ارسال لینک بازیابی</button><p id="recoveryMessage" class="status"></p>
+<div id="newPasswordBox" class="hidden"><h3 class="gold">تعیین رمز جدید</h3>
+<input id="newPassword" type="password" placeholder="رمز جدید">
+<button onclick="updatePassword()">ثبت رمز جدید</button><p id="passwordMessage" class="status"></p></div>
 </div>
 <footer>
-<strong class="gold">کافی نت و تعمیرات موبایل حاجی‌آبادی</strong>
-<br>
-تعمیرات موبایل | فروش لوازم جانبی | خدمات کافی نت
-<br>
-تعمیرات کارت‌خوان | اکسسوری و اسباب بازی
-<br>
-تماس: ۰۹۹۱۰۳۲۷۸۸۳
-<br>
-۰۹۳۳۳۸۱۵۲۵۴
+<strong class="gold">کافی نت و تعمیرات موبایل حاجی‌آبادی</strong><br>
+تعمیرات موبایل | فروش لوازم جانبی | خدمات کافی نت<br>
+تعمیرات کارت‌خوان | اکسسوری و اسباب بازی<br>
+تماس: ۰۹۹۱۰۳۲۷۸۸۳<br>۰۹۳۳۳۸۱۵۲۵۴
 </footer>
-
 <script>
 const SUPABASE_URL="https://qitzmggrgigrsgsebknq.supabase.co";
 const SUPABASE_KEY="sb_publishable_l__ULc7d4vxErIiij0u4eQ_R7o7o5kL";
 const ADMIN_UID="17356832-e67b-47a6-bd83-8ae90e81614d";
-
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-db.auth.onAuthStateChange((event, session) => {
-  if (event === "PASSWORD_RECOVERY") {
-    document.getElementById("newPasswordBox").classList.remove("hidden");
-    document.getElementById("recoveryMessage").textContent =
-      "لطفاً رمز جدید خود را وارد کنید.";
-  }
-});
-
-
-async function sendRecovery(){
-  const email=document.getElementById("recoveryEmail").value.trim();
-  const msg=document.getElementById("recoveryMessage");
-
-  if(!email){
-    msg.textContent="ایمیل را وارد کن.";
-    return;
-  }
-
-  msg.textContent="در حال ارسال ایمیل...";
-
-  const {error}=await db.auth.resetPasswordForEmail(email,{
-    redirectTo:window.location.origin+window.location.pathname
-  });
-
-  msg.textContent=error
-    ?"خطا: "+error.message
-    :"لینک بازیابی به ایمیلت ارسال شد. صندوق ورودی را بررسی کن.";
+const WHATSAPP_NUMBER="989910327883";
+let items=[],current="همه",editing=null,isAdmin=false;
+let cart=JSON.parse(localStorage.getItem("hajiabadi_cart")||"[]");
+const categories=["همه","لوازم جانبی موبایل","تعمیرات موبایل","کافی نت","لوازم التحریر","اکسسوری و اسباب بازی","گوشی موبایل","تعمیرات کارت‌خوان"];
+function safe(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function toman(n){return Number(n||0).toLocaleString("fa-IR")+" تومان";}
+function saveCart(){localStorage.setItem("hajiabadi_cart",JSON.stringify(cart));renderCart();}
+function addToCart(id){
+ const p=items.find(x=>String(x.id)===String(id));if(!p)return;
+ const found=cart.find(x=>String(x.id)===String(id));
+ if(found)found.qty++;else cart.push({id:p.id,name:p.name,price:Number(p.price)||0,qty:1});
+ saveCart();alert("به سبد خرید اضافه شد.");
 }
-
-async function updatePassword(){
-  const password=document.getElementById("newPassword").value;
-  const msg=document.getElementById("passwordMessage");
-
-  if(password.length<8){
-    msg.textContent="رمز باید حداقل ۸ کاراکتر باشد.";
-    return;
-  }
-
-  msg.textContent="در حال ثبت رمز جدید...";
-
-  const {error}=await db.auth.updateUser({password});
-
-  if(error){
-    msg.textContent="خطا: "+error.message;
-    return;
-  }
-
-  msg.textContent="رمز جدید با موفقیت ثبت شد.";
-  document.getElementById("newPassword").value="";
+function changeQty(id,delta){
+ const x=cart.find(p=>String(p.id)===String(id));if(!x)return;
+ x.qty+=delta;if(x.qty<=0)cart=cart.filter(p=>String(p.id)!==String(id));saveCart();
 }
-const categories=[
-"همه","لوازم جانبی موبایل","تعمیرات موبایل","کافی نت",
-"لوازم التحریر","اکسسوری و اسباب بازی","گوشی موبایل",
-"تعمیرات کارت‌خوان"
-];
-
-let items=[];
-let current="همه";
-let editing=null;
-let isAdmin=false;
-
-function safe(s){
-return String(s??"").replace(/[&<>"']/g,c=>({
-"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-}[c]));
+function removeCartItem(id){cart=cart.filter(p=>String(p.id)!==String(id));saveCart();}
+function clearCart(){if(!cart.length)return;if(confirm("سبد خرید خالی شود؟")){cart=[];saveCart();}}
+function renderCart(){
+ const box=document.getElementById("cartItems");
+ document.getElementById("cartCount").textContent=cart.reduce((s,x)=>s+x.qty,0).toLocaleString("fa-IR");
+ if(!cart.length){box.innerHTML="سبد خرید خالی است.";document.getElementById("cartTotal").textContent="مجموع: ۰ تومان";return;}
+ box.innerHTML=cart.map(x=>`<div class="cart-line"><div><strong>${safe(x.name)}</strong><br><span class="desc">${toman(x.price)} × ${x.qty.toLocaleString("fa-IR")}</span></div><div class="actions"><button onclick="changeQty('${safe(x.id)}',-1)">−</button><strong>${x.qty.toLocaleString("fa-IR")}</strong><button onclick="changeQty('${safe(x.id)}',1)">+</button><button onclick="removeCartItem('${safe(x.id)}')">حذف</button></div></div>`).join("");
+ const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
+ document.getElementById("cartTotal").textContent="مجموع: "+toman(total);
 }
-
+function checkout(){
+ if(!cart.length){alert("سبد خرید خالی است.");return;}
+ const customer=prompt("نام و نام خانوادگی مشتری را وارد کنید:");
+ if(!customer||!customer.trim())return;
+ const phone=prompt("شماره تماس مشتری را وارد کنید:");
+ if(!phone||!phone.trim())return;
+ const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
+ let message="سلام، برای ثبت سفارش از منوی آنلاین حاجی‌آبادی پیام می‌دهم.%0A";
+ message+="نام مشتری: "+encodeURIComponent(customer.trim())+"%0Aشماره تماس: "+encodeURIComponent(phone.trim())+"%0A%0A";
+ cart.forEach((x,i)=>{message+=(i+1)+") "+encodeURIComponent(x.name)+" - تعداد: "+x.qty+" - "+encodeURIComponent(toman(x.price*x.qty))+"%0A";});
+ message+="%0Aمجموع سفارش: "+encodeURIComponent(toman(total));
+ window.open("https://wa.me/"+WHATSAPP_NUMBER+"?text="+message,"_blank");
+}
 function render(){
-document.getElementById("categories").innerHTML=
-categories.map(c=>`<button class="${current===c?'active':''}" onclick="current='${safe(c)}';render()">${safe(c)}</button>`).join("");
-
-let q=document.getElementById("search").value.toLowerCase();
-
-let filtered=items.filter(x=>
-(current==="همه"||x.category===current)&&
-(x.name.toLowerCase().includes(q)||
-String(x.description||"").toLowerCase().includes(q))
-);
-
-document.getElementById("products").innerHTML=filtered.length?
-filtered.map(x=>`
-<div class="card">
-${x.image_url?`<img class="product-image" src="${safe(x.image_url)}" alt="${safe(x.name)}" loading="lazy">`:""}
-<h3>${safe(x.name)}</h3>
-<p class="desc">${safe(x.description)}</p>
-<div class="price">${Number(x.price)>0?Number(x.price).toLocaleString("fa-IR")+" تومان":"تماس بگیرید"}</div>
-</div>`).join(""):"<p>هنوز محصولی در این دسته ثبت نشده است.</p>";
-
-renderManage();
+ document.getElementById("categories").innerHTML=categories.map(c=>`<button class="${current===c?'active':''}" onclick="current='${safe(c)}';render()">${safe(c)}</button>`).join("");
+ let q=document.getElementById("search").value.toLowerCase();
+ let filtered=items.filter(x=>(current==="همه"||x.category===current)&&(String(x.name||"").toLowerCase().includes(q)||String(x.description||"").toLowerCase().includes(q)));
+ document.getElementById("products").innerHTML=filtered.length?filtered.map(x=>`
+ <div class="card">${x.image_url?`<img class="product-image" src="${safe(x.image_url)}" alt="${safe(x.name)}" loading="lazy">`:""}
+ <h3>${safe(x.name)}</h3><p class="desc">${safe(x.description)}</p>
+ <div class="price">${Number(x.price)>0?toman(x.price):"تماس بگیرید"}</div>
+ <div class="actions"><button onclick="addToCart('${safe(x.id)}')">افزودن به سبد خرید 🛒</button></div></div>`).join(""):"<p>هنوز محصولی در این دسته ثبت نشده است.</p>";
+ renderManage();
 }
-
 async function loadProducts(){
-const {data,error}=await db.from("products")
-.select("*").order("created_at",{ascending:false});
-
-if(error){
-document.getElementById("status").textContent="خطا در دریافت اطلاعات: "+error.message;
-return;
+ const {data,error}=await db.from("products").select("*").order("created_at",{ascending:false});
+ if(error){document.getElementById("status").textContent="خطا در دریافت اطلاعات: "+error.message;return;}
+ items=data||[];document.getElementById("status").textContent="قیمت‌ها از پایگاه داده آنلاین دریافت می‌شوند.";render();
 }
-items=data||[];
-document.getElementById("status").textContent="قیمت‌ها از پایگاه داده آنلاین دریافت می‌شوند.";
-render();
-}
-
-function showLogin(){
-document.getElementById("loginBox").classList.toggle("hidden");
-}
-
+function showLogin(){document.getElementById("loginBox").classList.toggle("hidden");}
 async function login(){
-let email=document.getElementById("email").value.trim();
-let password=document.getElementById("password").value;
-let msg=document.getElementById("loginMessage");
-
-if(!email||!password){msg.textContent="ایمیل و رمز را وارد کن.";return;}
-
-msg.textContent="در حال ورود...";
-
-const {data,error}=await db.auth.signInWithPassword({email,password});
-
-if(error){msg.textContent="خطا: "+error.message;return;}
-
-if(data.user.id!==ADMIN_UID){
-await db.auth.signOut();
-msg.textContent="این حساب اجازه مدیریت ندارد.";
-return;
+ let email=document.getElementById("email").value.trim(),password=document.getElementById("password").value,msg=document.getElementById("loginMessage");
+ if(!email||!password){msg.textContent="ایمیل و رمز را وارد کن.";return;}
+ msg.textContent="در حال ورود...";
+ const {data,error}=await db.auth.signInWithPassword({email,password});
+ if(error){msg.textContent="خطا: "+error.message;return;}
+ if(data.user.id!==ADMIN_UID){await db.auth.signOut();msg.textContent="این حساب اجازه مدیریت ندارد.";return;}
+ msg.textContent="ورود موفق!";setAdmin(data.user);
 }
-
-msg.textContent="ورود موفق!";
-setAdmin(data.user);
-}
-
 function setAdmin(user){
-isAdmin=!!user&&user.id===ADMIN_UID;
-document.getElementById("admin").classList.toggle("hidden",!isAdmin);
-document.getElementById("loginBox").classList.add("hidden");
-document.getElementById("loginToggle").classList.toggle("hidden",isAdmin);
-document.getElementById("adminEmail").textContent=user?.email||"";
-renderManage();
+ isAdmin=!!user&&user.id===ADMIN_UID;
+ document.getElementById("admin").classList.toggle("hidden",!isAdmin);
+ document.getElementById("loginBox").classList.add("hidden");
+ document.getElementById("loginToggle").classList.toggle("hidden",isAdmin);
+ document.getElementById("adminEmail").textContent=user?.email||"";renderManage();
 }
-
-async function logout(){
-await db.auth.signOut();
-setAdmin(null);
-}
-
+async function logout(){await db.auth.signOut();setAdmin(null);}
 function clearForm(){
-editing=null;
-["name","price","description"].forEach(id=>document.getElementById(id).value="");
-document.getElementById("imageFile").value="";
-document.getElementById("imagePreview").src="";
-document.getElementById("imagePreview").style.display="none";
-document.getElementById("imageMessage").textContent="";
+ editing=null;["name","price","description"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("imageFile").value="";document.getElementById("imagePreview").src="";
+ document.getElementById("imagePreview").style.display="none";document.getElementById("imageMessage").textContent="";
 }
-
 function previewImage(){
-const file=document.getElementById("imageFile").files[0];
-const preview=document.getElementById("imagePreview");
-const msg=document.getElementById("imageMessage");
-if(!file){
-  preview.src="";
-  preview.style.display="none";
-  msg.textContent="";
-  return;
+ const file=document.getElementById("imageFile").files[0],preview=document.getElementById("imagePreview"),msg=document.getElementById("imageMessage");
+ if(!file){preview.src="";preview.style.display="none";msg.textContent="";return;}
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)){document.getElementById("imageFile").value="";preview.src="";preview.style.display="none";msg.textContent="فرمت عکس باید JPG، PNG یا WebP باشد.";return;}
+ if(file.size>5*1024*1024){document.getElementById("imageFile").value="";preview.src="";preview.style.display="none";msg.textContent="حجم عکس نباید بیشتر از ۵ مگابایت باشد.";return;}
+ preview.src=URL.createObjectURL(file);preview.style.display="block";msg.textContent="پیش‌نمایش عکس انتخاب‌شده";
 }
-const allowed=["image/jpeg","image/png","image/webp"];
-if(!allowed.includes(file.type)){
-  document.getElementById("imageFile").value="";
-  preview.src="";
-  preview.style.display="none";
-  msg.textContent="فرمت عکس باید JPG، PNG یا WebP باشد.";
-  return;
-}
-if(file.size>5*1024*1024){
-  document.getElementById("imageFile").value="";
-  preview.src="";
-  preview.style.display="none";
-  msg.textContent="حجم عکس نباید بیشتر از ۵ مگابایت باشد.";
-  return;
-}
-preview.src=URL.createObjectURL(file);
-preview.style.display="block";
-msg.textContent="پیش‌نمایش عکس انتخاب‌شده";
-}
-
 async function saveProduct(){
-if(!isAdmin){alert("ابتدا وارد حساب مدیر شو.");return;}
-
-let name=document.getElementById("name").value.trim();
-let price=document.getElementById("price").value;
-let description=document.getElementById("description").value.trim();
-let category=document.getElementById("category").value;
-let imageFile=document.getElementById("imageFile").files[0];
-
-if(!name){alert("نام محصول را وارد کن.");return;}
-if(price!==""&&Number(price)<0){alert("قیمت معتبر نیست.");return;}
-
-let existing=editing?items.find(x=>x.id===editing):null;
-let imageUrl=existing?.image_url||null;
-
-if(imageFile){
-  const allowed=["image/jpeg","image/png","image/webp"];
-  if(!allowed.includes(imageFile.type)){
-    alert("فرمت عکس باید JPG، PNG یا WebP باشد.");
-    return;
-  }
-  if(imageFile.size>5*1024*1024){
-    alert("حجم عکس نباید بیشتر از ۵ مگابایت باشد.");
-    return;
-  }
-
+ if(!isAdmin){alert("ابتدا وارد حساب مدیر شو.");return;}
+ let name=document.getElementById("name").value.trim(),price=document.getElementById("price").value,description=document.getElementById("description").value.trim(),category=document.getElementById("category").value,imageFile=document.getElementById("imageFile").files[0];
+ if(!name){alert("نام محصول را وارد کن.");return;}if(price!==""&&Number(price)<0){alert("قیمت معتبر نیست.");return;}
+ let existing=editing?items.find(x=>String(x.id)===String(editing)):null,imageUrl=existing?.image_url||null;
+ if(imageFile){
+  if(!["image/jpeg","image/png","image/webp"].includes(imageFile.type)||imageFile.size>5*1024*1024){alert("فرمت یا حجم عکس معتبر نیست.");return;}
   document.getElementById("imageMessage").textContent="در حال آپلود عکس...";
-  const extension=imageFile.type==="image/jpeg"?"jpg":imageFile.type==="image/png"?"png":"webp";
-  const filePath=Date.now()+"-"+crypto.randomUUID()+"."+extension;
-  const {data:uploadData,error:uploadError}=await db.storage
-    .from("product-images")
-    .upload(filePath,imageFile,{
-      contentType:imageFile.type,
-      cacheControl:"3600",
-      upsert:false
-    });
-
-  if(uploadError){
-    alert("خطا در آپلود عکس: "+uploadError.message);
-    document.getElementById("imageMessage").textContent="آپلود عکس ناموفق بود.";
-    return;
-  }
-
-  const {data:publicData}=db.storage
-    .from("product-images")
-    .getPublicUrl(uploadData.path);
-  imageUrl=publicData.publicUrl;
+  const extension=imageFile.type==="image/jpeg"?"jpg":imageFile.type==="image/png"?"png":"webp",filePath=Date.now()+"-"+crypto.randomUUID()+"."+extension;
+  const {data:uploadData,error:uploadError}=await db.storage.from("product-images").upload(filePath,imageFile,{contentType:imageFile.type,cacheControl:"3600",upsert:false});
+  if(uploadError){alert("خطا در آپلود عکس: "+uploadError.message);document.getElementById("imageMessage").textContent="آپلود عکس ناموفق بود.";return;}
+  const {data:publicData}=db.storage.from("product-images").getPublicUrl(uploadData.path);imageUrl=publicData.publicUrl;
+ }
+ let product={name,price:Number(price)||0,description,category,image_url:imageUrl},result;
+ if(editing)result=await db.from("products").update(product).eq("id",editing);else result=await db.from("products").insert(product);
+ if(result.error){alert("خطا در ذخیره: "+result.error.message);return;}
+ clearForm();await loadProducts();alert("اطلاعات با موفقیت ذخیره شد.");
 }
-
-let product={
-  name,
-  price:Number(price)||0,
-  description,
-  category,
-  image_url:imageUrl
-};
-
-let result;
-if(editing){
-  result=await db.from("products").update(product).eq("id",editing);
-}else{
-  result=await db.from("products").insert(product);
-}
-
-if(result.error){
-  alert("خطا در ذخیره: "+result.error.message);
-  return;
-}
-
-clearForm();
-await loadProducts();
-alert("اطلاعات با موفقیت ذخیره شد.");
-}
-
 function renderManage(){
-if(!isAdmin)return;
-
-document.getElementById("manage").innerHTML=items.map(x=>`
-<div class="card" style="margin-top:10px">
-${x.image_url?`<img class="product-image" style="max-width:180px;height:110px" src="${safe(x.image_url)}" alt="${safe(x.name)}">`:""}
-<strong>${safe(x.name)}</strong>
-<p class="desc">${Number(x.price).toLocaleString("fa-IR")} تومان</p>
-<div class="actions">
-<button onclick="editProduct(${x.id})">ویرایش</button>
-<button onclick="deleteProduct(${x.id})">حذف</button>
-</div>
-</div>`).join("");
+ if(!isAdmin)return;
+ document.getElementById("manage").innerHTML=items.map(x=>`<div class="card" style="margin-top:10px">${x.image_url?`<img class="product-image" style="max-width:180px;height:110px" src="${safe(x.image_url)}" alt="${safe(x.name)}">`:""}<strong>${safe(x.name)}</strong><p class="desc">${toman(x.price)}</p><div class="actions"><button onclick="editProduct('${safe(x.id)}')">ویرایش</button><button onclick="deleteProduct('${safe(x.id)}')">حذف</button></div></div>`).join("");
 }
-
 function editProduct(id){
-let x=items.find(p=>p.id===id);
-if(!x)return;
-editing=id;
-document.getElementById("name").value=x.name;
-document.getElementById("price").value=x.price;
-document.getElementById("description").value=x.description||"";
-document.getElementById("category").value=x.category;
-document.getElementById("imageFile").value="";
-const preview=document.getElementById("imagePreview");
-preview.src=x.image_url||"";
-preview.style.display=x.image_url?"block":"none";
-document.getElementById("imageMessage").textContent=x.image_url?"عکس فعلی محصول؛ برای تغییر، عکس جدید انتخاب کن.":"برای این محصول هنوز عکسی ثبت نشده است.";
-window.scrollTo(0,document.body.scrollHeight);
+ let x=items.find(p=>String(p.id)===String(id));if(!x)return;editing=x.id;
+ document.getElementById("name").value=x.name;document.getElementById("price").value=x.price;document.getElementById("description").value=x.description||"";
+ document.getElementById("category").value=x.category;document.getElementById("imageFile").value="";
+ const preview=document.getElementById("imagePreview");preview.src=x.image_url||"";preview.style.display=x.image_url?"block":"none";
+ document.getElementById("imageMessage").textContent=x.image_url?"عکس فعلی محصول؛ برای تغییر، عکس جدید انتخاب کن.":"برای این محصول هنوز عکسی ثبت نشده است.";
+ window.scrollTo(0,document.body.scrollHeight);
 }
-
 async function deleteProduct(id){
-if(!isAdmin||!confirm("این محصول حذف شود؟"))return;
-const {error}=await db.from("products").delete().eq("id",id);
-if(error){alert("خطا: "+error.message);return;}
-await loadProducts();
+ if(!isAdmin||!confirm("این محصول حذف شود؟"))return;
+ const {error}=await db.from("products").delete().eq("id",id);if(error){alert("خطا: "+error.message);return;}await loadProducts();
 }
-
+async function sendRecovery(){
+ const email=document.getElementById("recoveryEmail").value.trim(),msg=document.getElementById("recoveryMessage");
+ if(!email){msg.textContent="ایمیل را وارد کن.";return;}msg.textContent="در حال ارسال ایمیل...";
+ const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
+ msg.textContent=error?"خطا: "+error.message:"لینک بازیابی به ایمیلت ارسال شد. صندوق ورودی را بررسی کن.";
+}
+async function updatePassword(){
+ const password=document.getElementById("newPassword").value,msg=document.getElementById("passwordMessage");
+ if(password.length<8){msg.textContent="رمز باید حداقل ۸ کاراکتر باشد.";return;}msg.textContent="در حال ثبت رمز جدید...";
+ const {error}=await db.auth.updateUser({password});if(error){msg.textContent="خطا: "+error.message;return;}
+ msg.textContent="رمز جدید با موفقیت ثبت شد.";document.getElementById("newPassword").value="";
+}
 db.auth.onAuthStateChange((event,session)=>{
-setAdmin(session?.user||null);
+ if(event==="PASSWORD_RECOVERY"){document.getElementById("newPasswordBox").classList.remove("hidden");document.getElementById("recoveryMessage").textContent="لطفاً رمز جدید خود را وارد کنید.";}
+ setAdmin(session?.user||null);
 });
-
 async function start(){
-const {data}=await db.auth.getSession();
-setAdmin(data.session?.user||null);
-await loadProducts();
+ const {data}=await db.auth.getSession();setAdmin(data.session?.user||null);renderCart();await loadProducts();
 }
-
 start();
 </script>
 </body>
